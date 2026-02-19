@@ -14,6 +14,18 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 
+def print_error(error):
+    """
+    Prints and logs request error
+
+    Arguments:
+        error {_type_} -- error object with code and message
+    """
+    error_string = "{} - {}".format(error["code"], error["message"])
+    logger.error(error_string)
+    print(error_string)
+
+
 def main() -> None:
     """
     Main entry point
@@ -49,7 +61,10 @@ def main() -> None:
         "1850c9c8-fb1e-4b87-90ab-322c010209d8"
     )
     site = sc.get_site_by_id(site_id)
-    print(f"{site["displayName"]} - {site["id"]}")
+    if "error" in site:
+        print_error(site["error"])
+    else:
+        print(f"{site["displayName"]} - {site["id"]}")
 
 
 if __name__ == "__main__":
