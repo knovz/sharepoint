@@ -84,3 +84,17 @@ class SharepointClient:
         )
         response = self.__get(graph_url)
         return response
+
+    def get_site_by_id(self, site_id: str):
+        """
+        Retrieve site by id
+
+        Arguments:
+            site_id {str} -- id of the sharepoint site
+
+        Returns:
+            _type_ -- Object with site data
+        """
+        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}"
+        response = self.__get(graph_url)
+        return response

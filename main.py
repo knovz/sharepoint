@@ -40,6 +40,17 @@ def main() -> None:
     site = sc.get_site_by_name("captarvision.sharepoint.com", "ShareTest")
     print(f"{site["displayName"]} - {site["id"]}")
 
+    # Works with both the long and the short version
+    # site_id = "captarvision.sharepoint.com,02d9aeff-b1b8-40dd-ad98-cfb57a6953af,1850c9c8-fb1e-4b87-90ab-322c010209d8"
+    # site_id = "02d9aeff-b1b8-40dd-ad98-cfb57a6953af"
+    site_id = (
+        "captarvision.sharepoint.com,"
+        "02d9aeff-b1b8-40dd-ad98-cfb57a6953af,"
+        "1850c9c8-fb1e-4b87-90ab-322c010209d8"
+    )
+    site = sc.get_site_by_id(site_id)
+    print(f"{site["displayName"]} - {site["id"]}")
+
 
 if __name__ == "__main__":
     main()
