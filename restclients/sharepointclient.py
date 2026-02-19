@@ -49,17 +49,38 @@ class SharepointClient:
                 " Check the logs for more details."
             )
 
+    def __get(self, graph_url: str, timeout: int = 5):
+        response = requests.get(
+            graph_url,
+            headers=self.http_headers,
+            timeout=timeout,
+        ).json()
+        logger.debug(json.dumps(response, indent=2))
+        return response
+
     def list_sites(self):
         """
         Retrieves all sites.
         """
         graph_url = "https://graph.microsoft.com/v1.0/sites/"
         #   id, displayName, name
+        response = self.__get(graph_url)
 
-        response = requests.get(
-            graph_url,
-            headers=self.http_headers,
-            timeout=5,
-        ).json()
-        logger.debug(json.dumps(response, indent=2))
         return response["value"]
+
+    def get_site_by_name(self, host_name: str, site_name: str):
+        """
+        Retrieve a site by name and host name
+
+        Arguments:
+            host_name {str} -- name of the sharepoint site
+            site_name {str} -- name of the site
+
+        Returns:
+            _type_ -- Object with site data
+        """
+        graph_url = (
+            f"https://graph.microsoft.com/v1.0/sites/{host_name}:/sites/{site_name}"
+        )
+        response = self.__get(graph_url)
+        return response

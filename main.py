@@ -37,6 +37,9 @@ def main() -> None:
         if "displayName" in site and not site["isPersonalSite"]:
             print(f"{site["displayName"]} - {site["id"]}")
 
+    site = sc.get_site_by_name("captarvision.sharepoint.com", "ShareTest")
+    print(f"{site["displayName"]} - {site["id"]}")
+
 
 if __name__ == "__main__":
     main()
