@@ -32,6 +32,11 @@ def main() -> None:
 
     logger.info(sc.app)
 
+    sites = sc.list_sites()
+    for site in sites:
+        if "displayName" in site and not site["isPersonalSite"]:
+            print(f"{site["displayName"]} - {site["id"]}")
+
 
 if __name__ == "__main__":
     main()

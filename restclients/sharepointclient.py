@@ -1,7 +1,9 @@
 """Sharepoint Client"""
 
+import json
 import logging
 import msal
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -46,3 +48,18 @@ class SharepointClient:
                 f"Error '{result.get("error")}' while requesting the token."
                 " Check the logs for more details."
             )
+
+    def list_sites(self):
+        """
+        Retrieves all sites.
+        """
+        graph_url = "https://graph.microsoft.com/v1.0/sites/"
+        #   id, displayName, name
+
+        response = requests.get(
+            graph_url,
+            headers=self.http_headers,
+            timeout=5,
+        ).json()
+        logger.debug(json.dumps(response, indent=2))
+        return response["value"]
