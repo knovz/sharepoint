@@ -10,17 +10,10 @@ import yaml
 from dotenv import load_dotenv
 
 from restclients import SharepointClient
+from helpers import cli_menu
 
 logger = logging.getLogger(__name__)
 load_dotenv()
-
-
-def clear_screen() -> None:
-    """
-    Send clear screen cli command depending on Operating system.
-    https://stackoverflow.com/a/684344/4220807
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def print_error(error):
@@ -39,8 +32,6 @@ def main() -> None:
     """
     Main entry point
     """
-    clear_screen()
-
     with open("logging_config.yaml", "r", encoding="utf-8") as file:
         log_conf = yaml.safe_load(file)
     logging.config.dictConfig(log_conf)
@@ -58,13 +49,23 @@ def main() -> None:
 
     logger.info(sc.app)
 
-    sites = sc.list_sites()
-    for site in sites:
-        if "displayName" in site and not site["isPersonalSite"]:
-            print(f"{site["displayName"]} - {site["id"]}")
+    print("Connected to Sharepoint")
 
-    site = sc.get_site_by_name("captarvision.sharepoint.com", "ShareTest")
-    print(f"{site["displayName"]} - {site["id"]}")
+    sites = []
+    site_list = sc.list_sites()
+
+    for site in site_list:
+        if "displayName" in site and not site["isPersonalSite"]:
+            sites.append(site)
+
+    selected_site = cli_menu(
+        sites,
+        title="Sharepoint sites",
+        prompt="Please select one to continue",
+        exit_option=True,
+    )
+
+    print(f"You selected {selected_site["displayName"]}")
 
 
 if __name__ == "__main__":
