@@ -65,7 +65,25 @@ def main() -> None:
         exit_option=True,
     )
 
-    print(f"You selected {selected_site["displayName"]}")
+    logger.info("User selected site: %s", selected_site["displayName"])
+
+    drives = []
+    drives_list = sc.get_site_drives(selected_site["id"])
+
+    for drive in drives_list:
+        if "name" in drive and not "displayName" in drive:
+            drive["displayName"] = drive["name"]
+        drives.append(drive)
+
+    selected_drive = cli_menu(
+        drives,
+        title=f"{selected_site["displayName"]} libraries",
+        prompt="Please select one to continue",
+        exit_option=True,
+    )
+
+    logger.info("User selected library: %s", selected_drive["name"])
+    print("User selected library: %s", selected_drive["name"])
 
 
 if __name__ == "__main__":

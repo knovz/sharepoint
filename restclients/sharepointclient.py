@@ -13,7 +13,7 @@ class SharepointClient:
     Class to hold a Client to connecto to a Sharepoint server
     """
 
-    graph_api = "https://graph.microsoft.com/v1.0/"
+    graph_api = "https://graph.microsoft.com/v1.0/{}"
     authority_base = "https://login.microsoftonline.com/{}"
     scope = ["https://graph.microsoft.com/.default"]
 
@@ -98,3 +98,13 @@ class SharepointClient:
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}"
         response = self.__get(graph_url)
         return response
+
+    def get_site_drive(self, site_id: str) -> dict:
+        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive"
+        reponse = self.__get(graph_url)
+        return reponse
+
+    def get_site_drives(self, site_id: str) -> list:
+        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives"
+        reponse = self.__get(graph_url)
+        return reponse["value"]
