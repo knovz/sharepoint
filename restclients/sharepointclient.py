@@ -100,11 +100,29 @@ class SharepointClient:
         return response
 
     def get_site_drive(self, site_id: str) -> dict:
+        """
+        retrieve default document library for a site
+
+        Arguments:
+            site_id {str} -- site id
+
+        Returns:
+            dict -- Default library data
+        """
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive"
         reponse = self.__get(graph_url)
         return reponse
 
     def get_site_drives(self, site_id: str) -> list:
+        """
+        Retrieve a list of all document libraries for a site
+
+        Arguments:
+            site_id {str} -- site id
+
+        Returns:
+            list -- list of all document libraries for the site
+        """
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives"
         reponse = self.__get(graph_url)
         return reponse["value"]
