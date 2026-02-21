@@ -48,7 +48,7 @@ class SharepointClient:
 
     def __get(self, graph_url: str, timeout: int = 5):
         response = requests.get(
-            graph_url,
+            self.graph_api.format(graph_url),
             headers={
                 "Authorization": f"Bearer {self.token}",
             },
@@ -58,7 +58,7 @@ class SharepointClient:
 
     def __get_json(self, graph_url: str, timeout: int = 5):
         response = requests.get(
-            graph_url,
+            self.graph_api.format(graph_url),
             headers={
                 "Authorization": f"Bearer {self.token}",
                 "Accept": "application/json",
@@ -72,7 +72,7 @@ class SharepointClient:
         """
         Retrieves all sites.
         """
-        graph_url = "https://graph.microsoft.com/v1.0/sites/"
+        graph_url = "/sites"
         #   id, displayName, name
         response = self.__get_json(graph_url)
 
@@ -89,9 +89,7 @@ class SharepointClient:
         Returns:
             _type_ -- Object with site data
         """
-        graph_url = (
-            f"https://graph.microsoft.com/v1.0/sites/{host_name}:/sites/{site_name}"
-        )
+        graph_url = f"/sites/{host_name}:/sites/{site_name}"
         response = self.__get_json(graph_url)
         return response
 
@@ -105,7 +103,7 @@ class SharepointClient:
         Returns:
             _type_ -- Object with site data
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}"
+        graph_url = f"/sites/{site_id}"
         response = self.__get_json(graph_url)
         return response
 
@@ -119,7 +117,7 @@ class SharepointClient:
         Returns:
             dict -- Default library data
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive"
+        graph_url = f"/sites/{site_id}/drive"
         reponse = self.__get_json(graph_url)
         return reponse
 
@@ -133,7 +131,7 @@ class SharepointClient:
         Returns:
             list -- list of all document libraries for the site
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives"
+        graph_url = f"/sites/{site_id}/drives"
         reponse = self.__get_json(graph_url)
         return reponse["value"]
 
@@ -147,8 +145,8 @@ class SharepointClient:
         Returns:
             dict -- Drive information in dict form
         """
-        # graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives/{drive_id}/root"
-        graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root"
+        # graph_url = f"/sites/{site_id}/drives/{drive_id}/root"
+        graph_url = f"/drives/{drive_id}/root"
         response = self.__get_json(graph_url)
         return response
 
@@ -162,7 +160,7 @@ class SharepointClient:
         Returns:
             list -- list of all driveItems in this drive root
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root/children"
+        graph_url = f"/drives/{drive_id}/root/children"
         response = self.__get_json(graph_url)
         return response["value"]
 
@@ -181,9 +179,7 @@ class SharepointClient:
             folder_path = f"/items/{folder_id}"
         else:
             folder_path = "/root"
-        graph_url = (
-            f"https://graph.microsoft.com/v1.0/drives/{drive_id}/{folder_path}/children"
-        )
+        graph_url = f"/drives/{drive_id}/{folder_path}/children"
         response = self.__get_json(graph_url)
         return response["value"]
 
@@ -194,7 +190,9 @@ class SharepointClient:
         Arguments:
             file {dict} -- file, including id, name, and driveId parent reference
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/drives/{file["parentReference"]["driveId"]}/items/{file["id"]}/content"
+        graph_url = (
+            f"/drives/{file["parentReference"]["driveId"]}/items/{file["id"]}/content"
+        )
         response = self.__get(graph_url)
         with open(f"out/{file["name"]}", "wb") as fd:
             for chunk in response.iter_content(chunk_size=128):
