@@ -18,7 +18,7 @@ class SharepointClient:
     scope = ["https://graph.microsoft.com/.default"]
 
     def __init__(self, client_id, client_secret, tenant_id) -> None:
-        self.http_headers = None
+        self.token = None
 
         self.app = msal.ConfidentialClientApplication(
             client_id,
@@ -34,10 +34,7 @@ class SharepointClient:
 
         if "access_token" in result:
             logger.info("Acquired token with type '%s'", result["token_type"])
-            self.http_headers = {
-                "Authorization": f'Bearer {result["access_token"]}',
-                "Accept": "application/json",
-            }
+            self.token = result["access_token"]
         else:
             logger.error(
                 "Error '%s' while requesting the token.\n    %s",
@@ -52,7 +49,20 @@ class SharepointClient:
     def __get(self, graph_url: str, timeout: int = 5):
         response = requests.get(
             graph_url,
-            headers=self.http_headers,
+            headers={
+                "Authorization": f"Bearer {self.token}",
+            },
+            timeout=timeout,
+        )
+        return response
+
+    def __get_json(self, graph_url: str, timeout: int = 5):
+        response = requests.get(
+            graph_url,
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Accept": "application/json",
+            },
             timeout=timeout,
         ).json()
         logger.debug(json.dumps(response, indent=2))
@@ -64,7 +74,7 @@ class SharepointClient:
         """
         graph_url = "https://graph.microsoft.com/v1.0/sites/"
         #   id, displayName, name
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
 
         return response["value"]
 
@@ -82,7 +92,7 @@ class SharepointClient:
         graph_url = (
             f"https://graph.microsoft.com/v1.0/sites/{host_name}:/sites/{site_name}"
         )
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
         return response
 
     def get_site_by_id(self, site_id: str):
@@ -96,7 +106,7 @@ class SharepointClient:
             _type_ -- Object with site data
         """
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}"
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
         return response
 
     def get_site_drive(self, site_id: str) -> dict:
@@ -110,7 +120,7 @@ class SharepointClient:
             dict -- Default library data
         """
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive"
-        reponse = self.__get(graph_url)
+        reponse = self.__get_json(graph_url)
         return reponse
 
     def get_site_drives(self, site_id: str) -> list:
@@ -124,7 +134,7 @@ class SharepointClient:
             list -- list of all document libraries for the site
         """
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives"
-        reponse = self.__get(graph_url)
+        reponse = self.__get_json(graph_url)
         return reponse["value"]
 
     def get_drive_by_id(self, drive_id: str) -> dict:
@@ -139,7 +149,7 @@ class SharepointClient:
         """
         # graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives/{drive_id}/root"
         graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root"
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
         return response
 
     def list_drive_contents(self, drive_id: str) -> list:
@@ -153,7 +163,7 @@ class SharepointClient:
             list -- list of all driveItems in this drive root
         """
         graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root/children"
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
         return response["value"]
 
     def list_folder_contents(self, drive_id: str, folder_id: str = None) -> list:
@@ -174,5 +184,18 @@ class SharepointClient:
         graph_url = (
             f"https://graph.microsoft.com/v1.0/drives/{drive_id}/{folder_path}/children"
         )
-        response = self.__get(graph_url)
+        response = self.__get_json(graph_url)
         return response["value"]
+
+    def download_file(self, file: dict) -> None:
+        """
+        download a file
+
+        Arguments:
+            file {dict} -- file, including id, name, and driveId parent reference
+        """
+        graph_url = f"https://graph.microsoft.com/v1.0/drives/{file["parentReference"]["driveId"]}/items/{file["id"]}/content"
+        response = self.__get(graph_url)
+        with open(f"out/{file["name"]}", "wb") as fd:
+            for chunk in response.iter_content(chunk_size=128):
+                fd.write(chunk)

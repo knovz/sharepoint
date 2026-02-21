@@ -161,6 +161,10 @@ def main() -> None:
             break
 
     print(f"User selected item: {selected_item["name"]}")
+    logger.info("Downloading %s", selected_item["name"])
+    sc.download_file(selected_item)
+    logger.info("Downloaded %s", selected_item["name"])
+    print("file downloaded")
 
 
 if __name__ == "__main__":
