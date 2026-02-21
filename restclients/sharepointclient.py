@@ -199,3 +199,19 @@ class SharepointClient:
         with open(f"out/{file["name"]}", "wb") as fd:
             for chunk in response.iter_content(chunk_size=128):
                 fd.write(chunk)
+
+    # Upload file
+    # Replace
+    # PUT /drives/{drive-id}/items/{item-id}/content
+    # New file
+    # PUT /drives/{drive-id}/items/{parent-id}:/{filename}:/content
+    # with open("out/output.xlsx", "rb") as file:
+    #     content = file.read()
+
+    # response = requests.put(
+    #     graph_url,
+    #     headers=http_headers,
+    #     timeout=5,
+    #     data=content,
+    # ).json()
+    # logger.info(json.dumps(response, indent=2))
