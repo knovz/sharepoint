@@ -126,3 +126,32 @@ class SharepointClient:
         graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives"
         reponse = self.__get(graph_url)
         return reponse["value"]
+
+    def get_drive_by_id(self, drive_id: str) -> dict:
+        """
+        Get drive information
+
+        Arguments:
+            drive_id {str} -- Drive id
+
+        Returns:
+            dict -- Drive information in dict form
+        """
+        # graph_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives/{drive_id}/root"
+        graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root"
+        response = self.__get(graph_url)
+        return response
+
+    def list_drive_contents(self, drive_id: str) -> list:
+        """
+        List document library contents
+
+        Arguments:
+            drive_id {str} -- drive id
+
+        Returns:
+            list -- list of all driveItems in this drive root
+        """
+        graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root/children"
+        response = self.__get(graph_url)
+        return response["value"]

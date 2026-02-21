@@ -83,7 +83,23 @@ def main() -> None:
     )
 
     logger.info("User selected library: %s", selected_drive["name"])
-    print("User selected library: %s", selected_drive["name"])
+
+    content_list = sc.list_drive_contents(selected_drive["id"])
+
+    items = []
+    for item in content_list:
+        item["displayName"] = item["name"]
+        if "folder" in item:
+            item["displayName"] += f" ({item["folder"]["childCount"]} items)"
+        items.append(item)
+
+    selected_item = cli_menu(
+        items,
+        title=f"{selected_site["displayName"]} - {selected_drive["name"]}",
+        prompt="Select one to continue",
+        exit_option=True,
+    )
+    logger.info("User selected item from folder: %s", selected_item["name"])
 
 
 if __name__ == "__main__":

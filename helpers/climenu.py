@@ -13,6 +13,7 @@ def cli_menu(
     title: str = None,
     prompt: str = "Select an option",
     exit_option: bool = False,
+    error_msg=None,
 ) -> dict:
     """
     Present menu options and get user input
@@ -30,7 +31,6 @@ def cli_menu(
         dict -- _description_
     """
 
-    error_msg = None
     while True:
         clear_screen()
 
