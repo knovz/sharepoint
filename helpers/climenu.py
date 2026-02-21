@@ -44,11 +44,10 @@ def cli_menu(
             i += 1
             print(f"{i}. {item["displayName"]}")
 
+        print("")
         if up_option:
-            print("")
             print("u. UP")
         if exit_option:
-            print("")
             print("x. EXIT")
 
         print("")

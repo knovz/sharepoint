@@ -28,7 +28,12 @@ def print_error(error):
     print(error_string)
 
 
-def folder_content_menu(content_list: list, title: str = None) -> dict:
+def folder_content_menu(
+    sc: SharepointClient,
+    title: str,
+    drive_id: str,
+    folder_id: str = None,
+) -> dict:
     """
     Shows menu with folder content
 
@@ -41,6 +46,8 @@ def folder_content_menu(content_list: list, title: str = None) -> dict:
     Returns:
         dict -- Selected item from the folder content
     """
+    content_list = sc.list_folder_contents(drive_id, folder_id)
+
     items = []
     for item in content_list:
         item["displayName"] = item["name"]
@@ -55,6 +62,22 @@ def folder_content_menu(content_list: list, title: str = None) -> dict:
         up_option=True,
         exit_option=True,
     )
+    if "folder" in selected_item:
+        selected_item = folder_content_menu(
+            sc,
+            f"{title} - {selected_item["name"]}",
+            drive_id,
+            selected_item["id"],
+        )
+        if selected_item["id"] == "UP":
+            logger.info("User selected to move up one level")
+            selected_item = folder_content_menu(
+                sc,
+                title,
+                drive_id,
+                folder_id,
+            )
+
     return selected_item
 
 
@@ -114,28 +137,17 @@ def main() -> None:
 
     logger.info("User selected library: %s", selected_drive["name"])
 
-    content_list = sc.list_drive_contents(selected_drive["id"])
-
     selected_item = folder_content_menu(
-        content_list,
-        title=f"{selected_site["displayName"]} - {selected_drive["name"]}",
+        sc,
+        f"{selected_site["displayName"]} - {selected_drive["name"]}",
+        selected_drive["id"],
     )
 
     if selected_item["id"] == "UP":
         logger.info("User selected to move up one level")
     logger.info("User selected item from folder: %s", selected_item["name"])
 
-    if "folder" not in selected_item:
-        logger.info("Selected item is not a folder")
-    else:
-        folder_content_list = sc.list_folder_contents(
-            selected_drive["id"], selected_item["id"]
-        )
-
-        selected_item = folder_content_menu(
-            folder_content_list,
-            title=f"{selected_site["displayName"]} - {selected_item["name"]}",
-        )
+    print(f"User selected item from folder: {selected_item["name"]}")
 
 
 if __name__ == "__main__":

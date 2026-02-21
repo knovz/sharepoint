@@ -156,17 +156,23 @@ class SharepointClient:
         response = self.__get(graph_url)
         return response["value"]
 
-    def list_folder_contents(self, drive_id: str, folder_id: str) -> list:
+    def list_folder_contents(self, drive_id: str, folder_id: str = None) -> list:
         """
         List folder contents
 
         Arguments:
             drive_id {str} -- document library id
-            folder_id {str} -- folder id
+            folder_id {str} -- folder id, None for root
 
         Returns:
             list -- list driveItems contained in this folder
         """
-        graph_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/items/{folder_id}/children"
+        if folder_id is not None:
+            folder_path = f"/items/{folder_id}"
+        else:
+            folder_path = "/root"
+        graph_url = (
+            f"https://graph.microsoft.com/v1.0/drives/{drive_id}/{folder_path}/children"
+        )
         response = self.__get(graph_url)
         return response["value"]
