@@ -16,18 +16,6 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 
-def print_error(error):
-    """
-    Prints and logs request error
-
-    Arguments:
-        error {_type_} -- error object with code and message
-    """
-    error_string = "{} - {}".format(error["code"], error["message"])
-    logger.error(error_string)
-    print(error_string)
-
-
 def folder_content_menu(
     sc: SharepointClient,
     title: str,
