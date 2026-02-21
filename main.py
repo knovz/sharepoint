@@ -104,50 +104,63 @@ def main() -> None:
 
     print("Connected to Sharepoint")
 
-    sites = []
-    site_list = sc.list_sites()
+    # SITES
+    while True:
+        sites = []
+        site_list = sc.list_sites()
 
-    for site in site_list:
-        if "displayName" in site and not site["isPersonalSite"]:
-            sites.append(site)
+        for site in site_list:
+            if "displayName" in site and not site["isPersonalSite"]:
+                sites.append(site)
 
-    selected_site = cli_menu(
-        sites,
-        title="Sharepoint sites",
-        prompt="Please select one to continue",
-        exit_option=True,
-    )
+        selected_site = cli_menu(
+            sites,
+            title="Sharepoint sites",
+            prompt="Please select one to continue",
+            exit_option=True,
+        )
 
-    logger.info("User selected site: %s", selected_site["displayName"])
+        logger.info("User selected site: %s", selected_site["displayName"])
 
-    drives = []
-    drives_list = sc.get_site_drives(selected_site["id"])
+        # DRIVES
+        while True:
+            drives = []
+            drives_list = sc.get_site_drives(selected_site["id"])
 
-    for drive in drives_list:
-        if "name" in drive and not "displayName" in drive:
-            drive["displayName"] = drive["name"]
-        drives.append(drive)
+            for drive in drives_list:
+                if "name" in drive and not "displayName" in drive:
+                    drive["displayName"] = drive["name"]
+                drives.append(drive)
 
-    selected_drive = cli_menu(
-        drives,
-        title=f"{selected_site["displayName"]} libraries",
-        prompt="Please select one to continue",
-        exit_option=True,
-    )
+            selected_drive = cli_menu(
+                drives,
+                title=f"{selected_site["displayName"]} libraries",
+                prompt="Please select one to continue",
+                up_option=True,
+                exit_option=True,
+            )
+            if selected_drive["id"] == "UP":
+                logger.info("User selected to change site")
+                break
 
-    logger.info("User selected library: %s", selected_drive["name"])
+            logger.info("User selected library: %s", selected_drive["name"])
 
-    selected_item = folder_content_menu(
-        sc,
-        f"{selected_site["displayName"]} - {selected_drive["name"]}",
-        selected_drive["id"],
-    )
+            # FOLDERS
+            selected_item = folder_content_menu(
+                sc,
+                f"{selected_site["displayName"]} - {selected_drive["name"]}",
+                selected_drive["id"],
+            )
 
-    if selected_item["id"] == "UP":
-        logger.info("User selected to move up one level")
-    logger.info("User selected item from folder: %s", selected_item["name"])
+            if selected_item["id"] != "UP":
+                logger.info("User selected item: %s", selected_item["name"])
+                break
+            logger.info("User selected to change library")
 
-    print(f"User selected item from folder: {selected_item["name"]}")
+        if selected_item["id"] != "UP":
+            break
+
+    print(f"User selected item: {selected_item["name"]}")
 
 
 if __name__ == "__main__":
