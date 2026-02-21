@@ -28,6 +28,36 @@ def print_error(error):
     print(error_string)
 
 
+def folder_content_menu(content_list: list, title: str = None) -> dict:
+    """
+    Shows menu with folder content
+
+    Arguments:
+        content_list {list} -- folder contents
+
+    Keyword Arguments:
+        title {str} -- Optional title for the menu (default: {None})
+
+    Returns:
+        dict -- Selected item from the folder content
+    """
+    items = []
+    for item in content_list:
+        item["displayName"] = item["name"]
+        if "folder" in item:
+            item["displayName"] += f" ({item["folder"]["childCount"]} items)"
+        items.append(item)
+
+    selected_item = cli_menu(
+        items,
+        title=title,
+        prompt="Select one to continue",
+        up_option=True,
+        exit_option=True,
+    )
+    return selected_item
+
+
 def main() -> None:
     """
     Main entry point
@@ -86,20 +116,26 @@ def main() -> None:
 
     content_list = sc.list_drive_contents(selected_drive["id"])
 
-    items = []
-    for item in content_list:
-        item["displayName"] = item["name"]
-        if "folder" in item:
-            item["displayName"] += f" ({item["folder"]["childCount"]} items)"
-        items.append(item)
-
-    selected_item = cli_menu(
-        items,
+    selected_item = folder_content_menu(
+        content_list,
         title=f"{selected_site["displayName"]} - {selected_drive["name"]}",
-        prompt="Select one to continue",
-        exit_option=True,
     )
+
+    if selected_item["id"] == "UP":
+        logger.info("User selected to move up one level")
     logger.info("User selected item from folder: %s", selected_item["name"])
+
+    if "folder" not in selected_item:
+        logger.info("Selected item is not a folder")
+    else:
+        folder_content_list = sc.list_folder_contents(
+            selected_drive["id"], selected_item["id"]
+        )
+
+        selected_item = folder_content_menu(
+            folder_content_list,
+            title=f"{selected_site["displayName"]} - {selected_item["name"]}",
+        )
 
 
 if __name__ == "__main__":

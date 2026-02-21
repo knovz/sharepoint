@@ -12,6 +12,7 @@ def cli_menu(
     menu_options: list,
     title: str = None,
     prompt: str = "Select an option",
+    up_option: bool = False,
     exit_option: bool = False,
     error_msg=None,
 ) -> dict:
@@ -43,6 +44,9 @@ def cli_menu(
             i += 1
             print(f"{i}. {item["displayName"]}")
 
+        if up_option:
+            print("")
+            print("u. UP")
         if exit_option:
             print("")
             print("x. EXIT")
@@ -54,8 +58,12 @@ def cli_menu(
         print("")
         option = input(f"{prompt}\n")
 
-        if option == "x":
+        if option == "x" and exit_option:
+            logger.debug("User selected to close the application")
             sys.exit(0)
+        if option == "u" and up_option:
+            logger.debug("User selected to move up one level")
+            return {"id": "UP"}
         try:
             int_option = int(option)
             if int_option <= len(menu_options):
